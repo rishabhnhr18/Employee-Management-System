@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">👤</span>
+        <span class="logo-text">Employee Management System</span>
+      </div>
+      <button class="btn btn-primary" id="openAddModal">＋ Add Employee</button>
+    </div>
+  </header>
+
+  <!-- ── Summary Cards ── -->
+  <main class="main">
+    <section class="cards-row" id="summaryCards">
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <div class="card-body">
+          <div class="card-value" id="totalCount">—</div>
+          <div class="card-label">Total Employees</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏬</div>
+        <div class="card-body">
+          <div class="card-value" id="deptCount">—</div>
+          <div class="card-label">Departments</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <div class="card-body">
+          <div class="card-value" id="roleCount">—</div>
+          <div class="card-label">Unique Roles</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚧</div>
+        <div class="card-body">
+          <div class="card-value" id="genderCount">—</div>
+          <div class="card-label">Gender Groups</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Table Section ── -->
+    <section class="table-section">
+      <div class="table-toolbar">
+        <h2 class="section-title">Employees</h2>
+        <div class="search-wrap">
+          <input class="search-input" id="searchInput" type="text" placeholder="🔍  Search by name, ID, dept…" />
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="emp-table" id="empTable">
+          <thead>
+            <tr>
+              <th data-col="id" class="sortable">ID <span class="sort-icon">⇅</span></th>
+              <th data-col="name" class="sortable">Name <span class="sort-icon">⇅</span></th>
+              <th data-col="department" class="sortable">Department <span class="sort-icon">⇅</span></th>
+              <th data-col="role" class="sortable">Role <span class="sort-icon">⇅</span></th>
+              <th data-col="gender" class="sortable">Gender <span class="sort-icon">⇅</span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="empTbody">
+            <tr><td colspan="6" class="empty-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span id="rowCount">0 employees</span>
+      </div>
+    </section>
+
+    <!-- ── Charts Section ── -->
+    <section class="charts-section">
+      <h2 class="section-title">Graphical Overview</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">By Department</h3>
+          <canvas id="deptChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">By Role</h3>
+          <canvas id="roleChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">By Gender</h3>
+          <canvas id="genderChart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Add / Edit Modal ── -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add Employee</h2>
+        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      </div>
+      <form class="modal-form" id="empForm" novalidate>
+        <div class="form-group">
+          <label for="f-id">Employee ID</label>
+          <input id="f-id" name="id" type="text" placeholder="e.g. EMP001" required />
+          <span class="field-error" id="err-id"></span>
+        </div>
+        <div class="form-group">
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" placeholder="Full name (alphabets only)" required />
+          <span class="field-error" id="err-name"></span>
+        </div>
+        <div class="form-group">
+          <label for="f-dept">Department</label>
+          <select id="f-dept" name="department" required>
+            <option value="">Select Department</option>
+          </select>
+          <span class="field-error" id="err-dept"></span>
+        </div>
+        <div class="form-group">
+          <label for="f-role">Role</label>
+          <select id="f-role" name="role" required>
+            <option value="">Select Role</option>
+          </select>
+          <span class="field-error" id="err-role"></span>
+        </div>
+        <div class="form-group">
+          <label for="f-gender">Gender</label>
+          <select id="f-gender" name="gender" required>
+            <option value="">Select Gender</option>
+          </select>
+          <span class="field-error" id="err-gender"></span>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Delete Confirm Modal ── -->
+  <div class="modal-overlay" id="deleteOverlay" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="modal-title">Confirm Delete</h2>
+        <button class="modal-close" id="deleteModalClose" aria-label="Close">✕</button>
+      </div>
+      <p class="confirm-text">Are you sure you want to delete employee <strong id="deleteEmpName"></strong>? This action cannot be undone.</p>
+      <div class="form-actions">
+        <button class="btn btn-ghost" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
